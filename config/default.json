@@ -1,0 +1,5 @@
+{
+  "MONGO_URI": "mongodb+srv://muzammil:m5o5J6hwOJpgBPJ7@learning.pfb2i3w.mongodb.net/bidverse?retryWrites=true&w=majority",
+  "JWT_SECRET": "your-secret",
+  "baseUrl": "http://localhost:5000"
+}
