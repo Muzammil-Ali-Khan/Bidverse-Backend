@@ -60,4 +60,57 @@ router.post("/createProduct", async (req, res) => {
   }
 });
 
+router.get("/", async (req, res) => {
+  try {
+    const products = await Product.find();
+    return res.json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const product = await Product.findById(id);
+    return res.json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const product = await Product.findByIdAndDelete(id);
+    return res.json({
+      success: true,
+      product,
+      message: "Product Deleted Successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 module.exports = router;
