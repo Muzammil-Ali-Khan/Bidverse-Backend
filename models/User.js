@@ -26,6 +26,11 @@ const UserSchema = new Schema(
         "Please fill a valid email address",
       ],
     },
+    favourites: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "Product",
+      default: [],
+    },
     // username: {
     //     type: String,
     //     required: true,

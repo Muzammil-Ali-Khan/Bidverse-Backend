@@ -91,7 +91,7 @@ router.post("/signup", async (req, res) => {
     if (userNumber) {
       return res.status(400).json({
         success: false,
-        message: "Username already exists",
+        message: "Number already exists",
       });
     }
     user = await new User({
@@ -229,6 +229,32 @@ router.get("/login", async (req, res) => {
       message: "Internal server error",
       success: false,
       error: error.message,
+    });
+  }
+});
+
+router.put("/favourites", async (req, res) => {
+  const { userId, favourites } = req.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: userId },
+      {
+        favourites,
+      },
+      { new: true }
+    );
+
+    return res.json({
+      success: true,
+      user,
+      message: "User's favourite list Updated Successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
 });
