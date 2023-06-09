@@ -4,7 +4,14 @@ const Product = require("../../models/Product");
 
 router.post("/createProduct", async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["name", "image", "description", "price"];
+  const allowedUpdates = [
+    "name",
+    "image",
+    "description",
+    "price",
+    "endTime",
+    "isFeatured",
+  ];
   const isValidOperations = updates.every((update) =>
     allowedUpdates.includes(update)
   );
@@ -21,7 +28,7 @@ router.post("/createProduct", async (req, res) => {
       .json({ success: false, message: "Please provide all fields" });
   }
 
-  let { name, image, description, price } = req.body;
+  let { name, image, description, price, endTime, isFeatured } = req.body;
   const { id } = req.user;
 
   try {
@@ -31,6 +38,8 @@ router.post("/createProduct", async (req, res) => {
       description,
       price,
       userId: id,
+      endTime,
+      isFeatured,
     });
 
     await product.save();
@@ -42,6 +51,8 @@ router.post("/createProduct", async (req, res) => {
         description,
         price,
         userId: id,
+        endTime,
+        isFeatured,
       },
     };
 
@@ -104,6 +115,39 @@ router.delete("/:id", async (req, res) => {
       product,
       message: "Product Deleted Successfully",
     });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.put("/updateBidList", async (req, res) => {
+  const { productId, bidAmount } = req.body;
+
+  try {
+    const product = await Product.findById(productId);
+
+    if (product) {
+      const bidAmounts = [...product.bidAmounts, bidAmount];
+      const updatedProduct = await Product.findByIdAndUpdate(
+        { _id: productId },
+        { bidAmounts },
+        { new: true }
+      );
+      return res.json({
+        success: true,
+        updatedProduct,
+        message: "Bid made Successfully",
+      });
+    } else {
+      return res.json({
+        success: false,
+        message: "Product does not exist",
+      });
+    }
   } catch (error) {
     console.error(error);
     return res.json({

@@ -23,6 +23,18 @@ const ProductSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    endTime: {
+      type: Date,
+      required: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      required: true,
+    },
+    bidAmounts: {
+      type: [Number],
+      default: [],
+    },
   },
   {
     timestamps: true,
