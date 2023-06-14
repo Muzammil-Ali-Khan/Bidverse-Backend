@@ -233,6 +233,34 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.put("/updateUser", async (req, res) => {
+  const { userId, name, number, image } = req.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      { _id: userId },
+      {
+        name,
+        number,
+        image,
+      },
+      { new: true }
+    );
+
+    return res.json({
+      success: true,
+      user,
+      message: "User Updated Successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 router.put("/favourites", async (req, res) => {
   const { userId, favourites } = req.body;
 
