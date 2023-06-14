@@ -32,8 +32,13 @@ const ProductSchema = new Schema(
       required: true,
     },
     bidAmounts: {
-      type: [Number],
+      type: [Object],
       default: [],
+    },
+    category: {
+      type: String,
+      required: true,
+      enum: ["Fashion", "Electronics", "Furnitures", "Others"],
     },
   },
   {

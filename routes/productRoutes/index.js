@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../../models/Product");
+const User = require("../../models/User");
+const mongoose = require("mongoose");
 
 router.post("/createProduct", async (req, res) => {
   const updates = Object.keys(req.body);
@@ -11,6 +13,7 @@ router.post("/createProduct", async (req, res) => {
     "price",
     "endTime",
     "isFeatured",
+    "category",
   ];
   const isValidOperations = updates.every((update) =>
     allowedUpdates.includes(update)
@@ -28,7 +31,8 @@ router.post("/createProduct", async (req, res) => {
       .json({ success: false, message: "Please provide all fields" });
   }
 
-  let { name, image, description, price, endTime, isFeatured } = req.body;
+  let { name, image, description, price, endTime, isFeatured, category } =
+    req.body;
   const { id } = req.user;
 
   try {
@@ -40,6 +44,7 @@ router.post("/createProduct", async (req, res) => {
       userId: id,
       endTime,
       isFeatured,
+      category,
     });
 
     await product.save();
@@ -53,6 +58,7 @@ router.post("/createProduct", async (req, res) => {
         userId: id,
         endTime,
         isFeatured,
+        category,
       },
     };
 
@@ -125,13 +131,13 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.put("/updateBidList", async (req, res) => {
-  const { productId, bidAmount } = req.body;
+  const { productId, bidAmount, userId } = req.body;
 
   try {
     const product = await Product.findById(productId);
 
     if (product) {
-      const bidAmounts = [...product.bidAmounts, bidAmount];
+      const bidAmounts = [...product.bidAmounts, { userId, amount: bidAmount }];
       const updatedProduct = await Product.findByIdAndUpdate(
         { _id: productId },
         { bidAmounts },
@@ -148,6 +154,70 @@ router.put("/updateBidList", async (req, res) => {
         message: "Product does not exist",
       });
     }
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/favourites/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findById({ _id: userId });
+    const products = await Product.find({
+      _id: {
+        $in: user.favourites.map((item) => mongoose.Types.ObjectId(item)),
+      },
+    });
+    return res.json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/userProducts/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const products = await Product.find({
+      userId,
+    });
+    return res.json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+router.get("/userBiddedProducts/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const products = await Product.find({
+      "bidAmounts.userId": userId,
+    });
+
+    return res.json({
+      success: true,
+      products,
+    });
   } catch (error) {
     console.error(error);
     return res.json({
