@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes/index");
 const productRoutes = require("./routes/productRoutes/index");
+const transactionRoutes = require("./routes/transactionRoutes/index");
 const auth = require("./middlewares/auth");
 
 app.use(cors());
@@ -16,6 +17,7 @@ connectDB();
 // app.use('/your-path',sampleRoute);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/product", auth, productRoutes);
+app.use("/api/v1/transaction", auth, transactionRoutes);
 
 //test route
 app.get("/test", (req, res) => {
