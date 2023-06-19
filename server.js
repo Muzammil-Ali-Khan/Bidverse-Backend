@@ -31,9 +31,11 @@ app.get("/test", (req, res) => {
   });
 });
 
-cron.schedule("* */5 * * *", () => {
+cron.schedule("* */5 * * *", async () => {
   const products = Product.find();
-  products.forEach((prod) => {
+  // products.forEach((prod) => {
+  for (let i = 0; i < products.length; i++) {
+    let prod = products[i];
     if (!prod.isEmailSent) {
       const todayDate = new Date();
       const endDate = new Date(prod.endTime);
@@ -55,17 +57,28 @@ cron.schedule("* */5 * * *", () => {
             `Product ${prod.name} Bid Ended`,
             `Congratulations, you have won the product ${prod.name}. Here are the details of the person who is the owner of this product.\n Name: ${prodOwner.name} \n Email: ${prodOwner.email} \n Contact No.: ${prodOwner.number}`
           );
+
+          let updatedProduct = await Product.findByIdAndUpdate(
+            { _id: prod._id },
+            { isEmailSent: true },
+            { new: true }
+          );
         } else {
           mailService(
             prodOwner.email,
             `Product ${prod.name} Bid Ended`,
             `Sorry, No one has bidded on your product`
           );
+          let updatedProduct = await Product.findByIdAndUpdate(
+            { _id: prod._id },
+            { isEmailSent: true },
+            { new: true }
+          );
         }
       }
     }
-  });
-  // mailService();
+  }
+  // });
 });
 
 function mailService(receiverEmail, subject, body) {

@@ -40,6 +40,10 @@ const ProductSchema = new Schema(
       required: true,
       enum: ["Fashion", "Electronics", "Furnitures", "Others"],
     },
+    isEmailSent: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
