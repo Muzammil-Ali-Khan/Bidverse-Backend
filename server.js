@@ -31,65 +31,55 @@ app.get("/test", (req, res) => {
   });
 });
 
+cron.schedule("* */5 * * *", async () => {
+  const products = await Product.find();
+  // products.forEach((prod) => {
+  for (let i = 0; i < products.length; i++) {
+    let prod = products[i];
+    if (!prod.isEmailSent) {
+      const todayDate = new Date();
+      const endDate = new Date(prod.endTime);
+      if (todayDate > endDate) {
+        if (prod.bidAmounts.length > 0) {
+          const greaterBid =
+            prod.bidAmounts.find((item) => item.amount > prod.price) ?? {};
+          const bidder = User.findById(greaterBid.userId);
+          const prodOwner = User.findById(prod.userId);
 
-cron.schedule("*/1 * * * *", async () => {
-  console.log("Cron has started")
-  mailService(
-    'tehzahid22@gmail.com',
-    `Product Bid Ended`,
-    `Congratulations, you have won the product. Here are the details of the person who is the owner of this product.\n Name: \n Email: \n Contact No.:`
-  );
+          mailService(
+            prodOwner.email,
+            `Product ${prod.name} Bid Ended`,
+            `Congratulations, your product bid has ended. Here are the details of the person who has bidded the most highest.\n Name: ${bidder.name} \n Email: ${bidder.email} \n Contact No.: ${bidder.number}`
+          );
+
+          mailService(
+            bidder.email,
+            `Product ${prod.name} Bid Ended`,
+            `Congratulations, you have won the product ${prod.name}. Here are the details of the person who is the owner of this product.\n Name: ${prodOwner.name} \n Email: ${prodOwner.email} \n Contact No.: ${prodOwner.number}`
+          );
+
+          let updatedProduct = await Product.findByIdAndUpdate(
+            { _id: prod._id },
+            { isEmailSent: true },
+            { new: true }
+          );
+        } else {
+          mailService(
+            prodOwner.email,
+            `Product ${prod.name} Bid Ended`,
+            `Sorry, No one has bidded on your product`
+          );
+          let updatedProduct = await Product.findByIdAndUpdate(
+            { _id: prod._id },
+            { isEmailSent: true },
+            { new: true }
+          );
+        }
+      }
+    }
+  }
+  // });
 });
-
-// cron.schedule("* */5 * * *", async () => {
-//   const products = Product.find();
-//   // products.forEach((prod) => {
-//   for (let i = 0; i < products.length; i++) {
-//     let prod = products[i];
-//     if (!prod.isEmailSent) {
-//       const todayDate = new Date();
-//       const endDate = new Date(prod.endTime);
-//       if (todayDate > endDate) {
-//         if (prod.bidAmounts.length > 0) {
-//           const greaterBid =
-//             prod.bidAmounts.find((item) => item.amount > prod.price) ?? {};
-//           const bidder = User.findById(greaterBid.userId);
-//           const prodOwner = User.findById(prod.userId);
-
-//           mailService(
-//             prodOwner.email,
-//             `Product ${prod.name} Bid Ended`,
-//             `Congratulations, your product bid has ended. Here are the details of the person who has bidded the most highest.\n Name: ${bidder.name} \n Email: ${bidder.email} \n Contact No.: ${bidder.number}`
-//           );
-
-//           mailService(
-//             bidder.email,
-//             `Product ${prod.name} Bid Ended`,
-//             `Congratulations, you have won the product ${prod.name}. Here are the details of the person who is the owner of this product.\n Name: ${prodOwner.name} \n Email: ${prodOwner.email} \n Contact No.: ${prodOwner.number}`
-//           );
-
-//           let updatedProduct = await Product.findByIdAndUpdate(
-//             { _id: prod._id },
-//             { isEmailSent: true },
-//             { new: true }
-//           );
-//         } else {
-//           mailService(
-//             prodOwner.email,
-//             `Product ${prod.name} Bid Ended`,
-//             `Sorry, No one has bidded on your product`
-//           );
-//           let updatedProduct = await Product.findByIdAndUpdate(
-//             { _id: prod._id },
-//             { isEmailSent: true },
-//             { new: true }
-//           );
-//         }
-//       }
-//     }
-//   }
-//   // });
-// });
 
 function mailService(receiverEmail, subject, body) {
   let mailTransporter = nodemailer.createTransport({
