@@ -35,7 +35,7 @@ app.get("/test", (req, res) => {
 cron.schedule("*/1 * * * *", async () => {
   console.log("Cron has started")
   mailService(
-    'mstehreem123@yahoo.com',
+    'tehzahid22@gmail.com',
     `Product Bid Ended`,
     `Congratulations, you have won the product. Here are the details of the person who is the owner of this product.\n Name: \n Email: \n Contact No.:`
   );
