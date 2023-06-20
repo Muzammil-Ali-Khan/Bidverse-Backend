@@ -25,22 +25,24 @@ app.use("/api/v1/transaction", auth, transactionRoutes);
 
 //test route
 app.get("/test", (req, res) => {
-  task.start();
   res.json({
     success: true,
     message: "Server works!!",
-    cronMessage: 'Cron has started'
   });
 });
 
-const task = cron.schedule("*/1 * * * *", async () => {
-  print("Cron has started")
-  mailService(
-    'mstehreem123@yahoo.com',
-    `Product Bid Ended`,
-    `Congratulations, you have won the product. Here are the details of the person who is the owner of this product.\n Name: \n Email: \n Contact No.:`
-  );
-}, {scheduled: false});
+cron.schedule(`*/1 * * * *`, async () => {
+  console.log('running your task...');
+});
+
+// const task = cron.schedule("*/1 * * * *", async () => {
+//   print("Cron has started")
+//   mailService(
+//     'mstehreem123@yahoo.com',
+//     `Product Bid Ended`,
+//     `Congratulations, you have won the product. Here are the details of the person who is the owner of this product.\n Name: \n Email: \n Contact No.:`
+//   );
+// }, {scheduled: false});
 
 // cron.schedule("* */5 * * *", async () => {
 //   const products = Product.find();
