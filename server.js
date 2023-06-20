@@ -33,7 +33,7 @@ app.get("/test", (req, res) => {
 
 
 cron.schedule("*/1 * * * *", async () => {
-  print("Cron has started")
+  console.log("Cron has started")
   mailService(
     'mstehreem123@yahoo.com',
     `Product Bid Ended`,
